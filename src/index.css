@@ -1,0 +1,76 @@
+.back-in-stock {
+  position: relative;
+}
+.wcWishlistSubmitButton {
+  display: flex;
+  align-items: center;
+  width: 92%;
+  text-align: center;
+  justify-content: center;
+  margin: 0px 4% 12px;
+}
+.wcBackInStockSubmitButton {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.wcLabelColor {
+  color: #000;
+}
+.wcErrorMessage {
+  border-radius: 5px;
+  font-size: 14px;
+}
+.wcBackInStockButton {
+  cursor: pointer;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.ModalTitle {
+  margin-bottom: 0;
+  line-height: 1.5;
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0;
+}
+.modal-content {
+  padding: 20px;
+  border-radius: 10px;
+  width: 300px;
+  text-align: center;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+}
+#th-wl-error-mgs {
+  background-color: #000;
+  color: #fff;
+}
+.modal-content input {
+  margin: 10px 0;
+  padding: 8px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+.modal-content button {
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
