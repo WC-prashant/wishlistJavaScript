@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { apiService, showMessage } from "../../../utils/constent";
 import { Icons } from "../../../utils/Icons";
 
-const BackInStockModal = ({ ToggleBISModal, BackInStock, ProductId, StockOutProduct }) => {
+const BackInStockModal = ({ ToggleBISModal, BackInStock, StockOutProduct }) => {
   const [wishlistText, setWishlistText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");

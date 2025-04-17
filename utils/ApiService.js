@@ -1,6 +1,6 @@
 import axios from "axios";
-const baseUrlApi = 'https://subscriptionstaging.webcontrive.com/wishlist-club/public/api';
-// const baseUrlApi = 'https://wishlist.thimatic-apps.com/api/public/api';
+// const baseUrlApi = 'https://subscriptionstaging.webcontrive.com/wishlist-club/public/api';
+const baseUrlApi = 'https://wishlist.thimatic-apps.com/api/public/api';
 let instance = axios.create();
 export class ApiService {
     async getData(url) {

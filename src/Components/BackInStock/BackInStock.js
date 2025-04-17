@@ -1,9 +1,10 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import BackInStockModal from "./BackInStockModal";
 
 const BackInStock = ({ ProductId, VariantId, data }) => {
-
+  const [lastUrl, setLastUrl] = useState(location.href);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [selectedVarId, setSelectedVarId] = useState(VariantId);
   const toggleBackInStock = useCallback(() => setIsOpenModal((prev) => !prev), []);
   if (!data?.bis) return null;
   const { product_page_widget, home_page_widget, collection_page_widget } = data.bis;
@@ -24,8 +25,24 @@ const BackInStock = ({ ProductId, VariantId, data }) => {
     }
   }
 
-  console.log("================>>>>", data?.products);
-  console.log("================>>>>", data);
+  useEffect(() => {
+    const handleMutation = () => {
+      const newUrl = location.href;
+      if (newUrl !== lastUrl) {
+        setLastUrl(newUrl);
+        setTimeout(() => {
+          const queryParams = new URLSearchParams(window.location.search);
+          const value = queryParams.get('variant');
+          setSelectedVarId(value);
+        }, 100);
+      }
+    };
+    const observer = new MutationObserver(handleMutation);
+    observer.observe(document, { subtree: true, childList: true });
+    return () => {
+      observer.disconnect();
+    };
+  }, [lastUrl]);
 
   const StockOutProduct = data?.products?.filter(
     (product) =>
@@ -34,10 +51,8 @@ const BackInStock = ({ ProductId, VariantId, data }) => {
   const StockOutVariantProduct = data?.products?.filter(
     (product) =>
       product.inventoryQuantity <= 0 &&
-      product.variant_id === VariantId
+      product.variant_id == selectedVarId
   );
-  console.log("=======StockOutVariantProduct=========>>>>", StockOutVariantProduct);
-
   if (!StockOutVariantProduct || StockOutVariantProduct.length <= 0) return null;
   return (
     <div>
