@@ -3,13 +3,20 @@ export const apiService = new ApiService();
 if (typeof window.wishlistClubMeta === "undefined") {
   window.wishlistClubMeta = { wcSetting: {}, wcCustomerId: "", wcShop: "" };
 }
-export const showMessage = (message, type = "success", duration = 5000,) => {
+export const showMessage = (message, type = "success", duration = 2500) => {
+  let bgColor = JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['success_message_bg_color']
+  let Color = JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['success_message_text_color']
+  let bgColor1 = JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['error_message_bg_color']
+  let Color1 = JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['error_message_text_color']
   if (type === "success") {
     if (typeof $th_wishlistAdd_callback_successMessage == 'function') {
       // eslint-disable-next-line no-undef
       $th_wishlistAdd_callback_successMessage(message);
     } else {
-      document.querySelector('body').insertAdjacentHTML('beforeend', '<div id="th-wl-sucess-mgs" style=" background:"#000"" >' + message + '</div></div>');
+      document.querySelector('body').insertAdjacentHTML(
+        'beforeend',
+        '<div id="th-wl-sucess-mgs" style="background:' + bgColor + ';color:' + Color + '">' + message + '</div>'
+      );
       setTimeout(function () { document.getElementById("th-wl-sucess-mgs").remove(); }, duration);
     }
   } else {
@@ -17,7 +24,10 @@ export const showMessage = (message, type = "success", duration = 5000,) => {
       // eslint-disable-next-line no-undef
       $th_wishlistAdd_callback_errorMessage(message);
     } else {
-      document.querySelector('body').insertAdjacentHTML('beforeend', '<div id="th-wl-error-mgs">' + message + '</div></div>');
+      document.querySelector('body').insertAdjacentHTML(
+        'beforeend',
+        '<div id="th-wl-error-mgs" style="background:' + bgColor1 + ';color:' + Color1 + '"">' + message + '</div>'
+      );
       setTimeout(function () { document.getElementById("th-wl-error-mgs").remove(); }, duration);
     }
   }
@@ -66,7 +76,10 @@ export const updateWishlistCount = function (count) {
   const wishlistclubElements = document.querySelectorAll(".th_wlc_product_count");
   wishlistclubElements.forEach((element) => {
     element.style.display = count >= 1 ? "flex" : "none";
-    element.textContent = count;
+    element.textContent = count == null ? 0 : count;
+    element.setAttribute("data-count", count == null ? 0 : count);
   });
+  console.log("count=========>", count);
+  localStorage.setItem("th_wlc_pro_count", count);
   localStorage.setItem("wishlistClubTotal", count);
 };

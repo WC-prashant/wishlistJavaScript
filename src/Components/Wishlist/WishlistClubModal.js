@@ -90,17 +90,17 @@ const WishlistClubModal = ({ ToggleWLModal, onAddWishlist, backinstock, ProductI
     <Fragment>
       <div className="wcWishlistModal">
         <div className="wcWishlistModal_header">
-          <h5 className="ModalTitle">{wishlist_model.title}</h5>
+          <h5 className="ModalTitle">{JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['wishlist_model_title']}</h5>
           <button onClick={ToggleWLModal} className="wcWishlistModal_close">{Icons.closeIcon}</button>
         </div>
         <div className="wcWishlistModal_body">
           <div className="wcWishlistCreate" style={{ marginBottom: 13 }}>
             <label className="wcLabelColor" ToggleWLModal>
-              {wishlist_model.label}
+              {JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['wishlist_model_label']}
             </label>
             <input
               type={backinstock ? "email" : "text"}
-              placeholder={wishlist_model.placeholder}
+              placeholder={JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['wishlist_model_placeholder']}
               value={wishlistText}
               onChange={onChangeText}
             />
@@ -138,7 +138,7 @@ const WishlistClubModal = ({ ToggleWLModal, onAddWishlist, backinstock, ProductI
               cursor: "pointer",
             }}
           >
-            {wishlist_model.cancel_button}
+            {JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['wishlist_model_cancel_button']}
           </button>
           <button
             className="wcBackInStockSubmitButton"
@@ -151,7 +151,7 @@ const WishlistClubModal = ({ ToggleWLModal, onAddWishlist, backinstock, ProductI
 
             }}
           >
-            {wishlist_model.create_button}
+            {JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['wishlist_model_create_button']}
             {isLoading && <span>{Icons.loadingIcon}</span>}
           </button>
         </div>

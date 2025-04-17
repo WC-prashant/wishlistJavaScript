@@ -10,7 +10,7 @@ import {
   showMessage
 } from "../../../utils/constent";
 import { Icons } from "../../../utils/Icons";
-import { convertIPv4ToIPv6Like, wlProductVariantChange } from '../../index';
+import { wlProductVariantChange } from '../../index';
 import WishlistClubModal from "./WishlistClubModal";
 
 const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData }) => {
@@ -33,12 +33,12 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
 
   const onRemoveWishlistTab = async (id, index) => {
     setIsSaveLoading(id);
-    const payload = { customer_id: wcCustomerId, ip: convertIPv4ToIPv6Like(checkData.ip), shop: wcShop, wishlistid: id };
+    const payload = { customer_id: wcCustomerId, ip: checkData.ip, shop: wcShop, wishlistid: id };
     const data = await apiService.removeWishlistTab(payload);
     if (data.status === 200) {
       const clone = [...wishlist];
       clone.splice(index, 1);
-      localStorage.setItem(`wishlistClubData`, JSON.stringify({ ip: convertIPv4ToIPv6Like(checkData.ip), wishlist: clone }));
+      localStorage.setItem(`wishlistClubData`, JSON.stringify({ ip: checkData.ip, wishlist: clone }));
       let findIndex = (allProductWishlist || []).findIndex((item) => Number(item.shopify_product_id) === Number(ProductId) && Number(item.shopify_variant_id) === Number(VariantId));
       const selectedCount = (selectedData?.wishlistCount - 1 <= 0 ? 0 : selectedData?.wishlistCount - 1);
       const wishlistClone = {
@@ -97,31 +97,29 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
       let selectedData = wishlistData.find((el) => Number(el.shopify_variant_id) === Number(VariantId)) || null;
       setSelectedData(selectedData);
       if (!selectedData) {
-        const productVariants = cachedProductData.filter(item => Number(item.product_id) === Number(ProductId));
+        const productVariants = cachedProductData?.filter(item => Number(item.product_id) === Number(ProductId));
         const wishlistCount = highestWishlistItem?.wishlistCount || 0;
-        const newWishlistItems = productVariants
-          .map((variant) => {
-            if (wishlistData.length === 0) return null;
-            if (Number(WishlistVariant) !== 0 && Number(wishlistData[0].shopify_variant_id) !== Number(variant.variant_id)) {
-              return {
-                shopify_product_id: ProductId,
-                shopify_variant_id: variant.variant_id,
-                wishlistCount,
-                folder: WishlistVariant !== 1 ? highestWishlistItem.folder : [],
-                wishlisted: WishlistVariant !== 1 ? highestWishlistItem.folder.length > 0 : false,
-              };
-            }
-            if (Number(WishlistVariant) !== 1 && Number(wishlistData[0].shopify_product_id) !== Number(variant.product_id)) {
-              return {
-                shopify_product_id: ProductId,
-                wishlistCount,
-                folder: highestWishlistItem.folder,
-                wishlisted: highestWishlistItem.folder.length > 0,
-              };
-            }
-            return null;
-          })
-          .filter(Boolean);
+        const newWishlistItems = productVariants?.map((variant) => {
+          if (wishlistData.length === 0) return null;
+          if (Number(WishlistVariant) !== 0 && Number(wishlistData[0].shopify_variant_id) !== Number(variant.variant_id)) {
+            return {
+              shopify_product_id: ProductId,
+              shopify_variant_id: variant.variant_id,
+              wishlistCount,
+              folder: WishlistVariant !== 1 ? highestWishlistItem.folder : [],
+              wishlisted: WishlistVariant !== 1 ? highestWishlistItem.folder.length > 0 : false,
+            };
+          }
+          if (Number(WishlistVariant) !== 1 && Number(wishlistData[0].shopify_product_id) !== Number(variant.product_id)) {
+            return {
+              shopify_product_id: ProductId,
+              wishlistCount,
+              folder: highestWishlistItem.folder,
+              wishlisted: highestWishlistItem.folder.length > 0,
+            };
+          }
+          return null;
+        })?.filter(Boolean) || [];
         wishlistData = [...wishlistData, ...newWishlistItems];
         if (type !== "collection") {
           let selectedData = Number(WishlistVariant) !== 1 ? wishlistData.find((el) => Number(el.shopify_product_id) === Number(ProductId)) : wishlistData.find((el) => Number(el.shopify_variant_id) === Number(selectedVarId)) || null;
@@ -138,24 +136,24 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
   }, [cachedProductData, data, WishlistVariant, ProductId, selectedVarId, type, VariantId]);
 
   useEffect(() => {
-    if (type === 'product') {
-      const handleMutation = () => {
-        // eslint-disable-next-line no-restricted-globals
-        const newUrl = location.href;
-        if (newUrl !== lastUrl) {
-          setLastUrl(newUrl);
-          const queryParams = new URLSearchParams(window.location.search);
-          const value = queryParams.get('variant');
-          wlProductVariantChange(selectedVarId, value);
-          setSelectedVarId(value);
-        }
-      };
-      const observer = new MutationObserver(handleMutation);
-      observer.observe(document, { subtree: true, childList: true });
-      return () => {
-        observer.disconnect();
-      };
-    }
+    const handleMutation = () => {
+      // eslint-disable-next-line no-restricted-globals
+      const newUrl = location.href;
+      if (newUrl !== lastUrl) {
+        setLastUrl(newUrl);
+        const queryParams = new URLSearchParams(window.location.search);
+        const value = queryParams.get('variant');
+        console.log("Wishliat_value============>>", value);
+
+        wlProductVariantChange(selectedVarId, value);
+        setSelectedVarId(value);
+      }
+    };
+    const observer = new MutationObserver(handleMutation);
+    observer.observe(document, { subtree: true, childList: true });
+    return () => {
+      observer.disconnect();
+    };
   }, [lastUrl, selectedVarId, type]);
 
   useEffect(() => {
@@ -181,7 +179,7 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
       let updatedWishlist = [...allProductWishlist];
       let findItem = Number(WishlistVariant) !== 1 ? updatedWishlist.find((el) => Number(el.shopify_product_id) === Number(ProductId)) : updatedWishlist.find((el) => Number(el.shopify_variant_id) === Number(selectedVarId)) || null;
       if (isAdding) {
-        const wishlistCount = updatedWishlist[0].wishlistCount + 1;
+        const wishlistCount = updatedWishlist[0]?.wishlistCount || 0 + 1;
         if (!findItem) {
           updatedWishlist.push({
             wishlisted: true,
@@ -208,8 +206,8 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
             ...item,
             wishlistCount: item.wishlistCount - 1,
             folder: Number(WishlistVariant) !== 0 ?
-              Number(item.shopify_variant_id) === Number(selectedVarId) ? item.folder.filter(folderId => folderId !== id) : item.folder :
-              Number(item.shopify_product_id) === Number(ProductId) ? item.folder.filter(folderId => folderId !== id) : item.folder,
+              Number(item.shopify_variant_id) === Number(selectedVarId) ? item.folder?.filter(folderId => folderId !== id) : item.folder :
+              Number(item.shopify_product_id) === Number(ProductId) ? item.folder?.filter(folderId => folderId !== id) : item.folder,
             wishlisted: Number(WishlistVariant) !== 0 ?
               Number(item.shopify_variant_id) === Number(selectedVarId) ? item.folder.length > 1 : item.folder.length > 0 :
               Number(item.shopify_product_id) === Number(ProductId) ? item.folder.length > 1 : item.folder.length > 0,
@@ -222,15 +220,15 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
               Number(item.shopify_variant_id) === Number(selectedVarId) ? item.folder.length > 1 : item.folder.length > 0 :
               Number(item.shopify_product_id) === Number(ProductId) ? item.folder.length > 1 : item.folder.length > 0,
             folder: Number(WishlistVariant) !== 0 ?
-              Number(item.shopify_variant_id) === Number(selectedVarId) ? item.folder.filter(folderId => Number(folderId) !== Number(id)) : item.folder :
-              Number(item.shopify_product_id) === Number(ProductId) ? item.folder.filter(folderId => Number(folderId) !== Number(id)) : item.folder,
+              Number(item.shopify_variant_id) === Number(selectedVarId) ? item.folder?.filter(folderId => Number(folderId) !== Number(id)) : item.folder :
+              Number(item.shopify_product_id) === Number(ProductId) ? item.folder?.filter(folderId => Number(folderId) !== Number(id)) : item.folder,
           }));
         }
       }
-
+      let message = JSON.parse(localStorage.getItem("wishlistClubData"))['setting'][isAdding ? 'product_add_to_wishlist' : 'product_remove_wishlist']
       setSelectedData(Number(WishlistVariant) !== 1 ? updatedWishlist.find((el) => Number(el.shopify_product_id) === Number(ProductId)) : updatedWishlist.find((el) => Number(el.shopify_variant_id) === Number(selectedVarId)) || {});
       updateLocalStorage(updatedWishlist);
-      showMessage(data.message, "success");
+      showMessage(message, "success");
       updateWishlistCount(data.data.total);
       setIsActive(Number(general?.is_same_wishlist) === 0 ? false : true);
     } else {
@@ -266,12 +264,12 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
   }
   const onRemoveWishlist = (id) => handleWishlistUpdate(id, false);
 
-  const modifySVGColor = (svgString, fillColor = "red") => {
+  const modifySVGColor = (svgString, fillColor = "red", fillStoke = "red") => {
     return svgString
       .replace(/fill="[^"]*"/g, `fill="${fillColor}"`)
-      .replace(/stroke="[^"]*"/g, `stroke="${fillColor}"`)
+      .replace(/stroke="[^"]*"/g, `stroke="${fillStoke}"`)
   };
-  const updatedIcon = modifySVGColor(general.icon, selectedData?.wishlisted ? settingType?.button_color_after : settingType?.button_color_before);
+  const updatedIcon = modifySVGColor(general.icon, selectedData?.wishlisted ? settingType?.button_color_after : "none", selectedData?.wishlisted ? settingType?.button_color_after : settingType?.button_color_before);
   const isCheckWishlist = (Number(general.is_same_wishlist) === 0 && selectedData?.wishlisted) ? true : false;
   const isCheckOpenDropdown = (Number(general?.multiple_wishlist) === 0 && !isCheckWishlist) ? 'add' : Number(general?.is_same_wishlist) === 1 ? 'drop' : Number(general.is_same_wishlist) === 0 && selectedData?.wishlisted ? 'remove' : 'drop';
   if (AppEnable === 1) {
@@ -327,7 +325,7 @@ const WishlistWidget = ({ ProductId, VariantId, type, data, cachedProductData })
                   </li>
                 }
                 <li className="wc_wishlistOption">
-                  <div className="wc_wishlistContent" onClick={toggleWishlistModal}>{Icons.plusIcon} {language.wishlist_dropdown_text}</div>
+                  <div className="wc_wishlistContent" onClick={toggleWishlistModal}>{Icons.plusIcon} {JSON.parse(localStorage.getItem("wishlistClubData"))['setting']['wishlist_dropdown_text']}</div>
                 </li>
               </ul></div>
             : ''

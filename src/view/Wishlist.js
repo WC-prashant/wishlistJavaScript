@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { apiService } from "../../utils/constent";
-import { convertIPv4ToIPv6Like } from "../index";
 const APP_BASE_URL = 'https://wishlist.thimatic-apps.com/';
 const apiUrlWishlist = `${APP_BASE_URL}api/public/api`;
 const initialState = {
@@ -72,13 +71,13 @@ const getCookie = (name) => {
     const value = `; ${document.cookie}`;
     const parts = value?.split(`; ${name}=`);
 
-    if (parts.length === 2) return parts.pop().split(';').shift();
+    if (parts.length === 2) return parts.pop()?.split(';').shift();
     return "";
 };
 const createCookie = (name, value, days) => {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
-    const ipv6 = convertIPv4ToIPv6Like(value);
+    const ipv6 = (value);
     document.cookie = `${name}=${ipv6};expires=${date.toUTCString()};path=/`;
 };
 const moneyFormat = (amount, format) => {
@@ -86,7 +85,7 @@ const moneyFormat = (amount, format) => {
     if (isNaN(amount) || amount == null) return "0";
 
     amount = (amount / 100).toFixed(2);
-    const [integer, decimal] = amount.split(".");
+    const [integer, decimal] = amount?.split(".");
 
     const formats = {
         amount: `${integer.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}${decimal ? `.${decimal}` : ""}`,

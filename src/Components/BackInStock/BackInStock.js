@@ -2,14 +2,30 @@ import React, { useState, useCallback } from "react";
 import BackInStockModal from "./BackInStockModal";
 
 const BackInStock = ({ ProductId, VariantId, data }) => {
+
   const [isOpenModal, setIsOpenModal] = useState(false);
   const toggleBackInStock = useCallback(() => setIsOpenModal((prev) => !prev), []);
   if (!data?.bis) return null;
   const { product_page_widget, home_page_widget, collection_page_widget } = data.bis;
+  let path = (typeof window !== 'undefined' && window.location && typeof window.location.pathname === 'string')
+    ? window.location.pathname
+    : "";
 
-  let ActiveObject = window.location.pathname === "/"
-    ? home_page_widget
-    : window.location.pathname.split("/")[1] === "collections" ? collection_page_widget : product_page_widget;
+  let ActiveObject = "/";
+
+  if (path === "/") {
+    ActiveObject = home_page_widget;
+  } else {
+    const firstSegment = path.split("/")[1];
+    if (firstSegment === "collections") {
+      ActiveObject = collection_page_widget;
+    } else {
+      ActiveObject = product_page_widget;
+    }
+  }
+
+  console.log("================>>>>", data?.products);
+  console.log("================>>>>", data);
 
   const StockOutProduct = data?.products?.filter(
     (product) =>
@@ -20,6 +36,7 @@ const BackInStock = ({ ProductId, VariantId, data }) => {
       product.inventoryQuantity <= 0 &&
       product.variant_id === VariantId
   );
+  console.log("=======StockOutVariantProduct=========>>>>", StockOutVariantProduct);
 
   if (!StockOutVariantProduct || StockOutVariantProduct.length <= 0) return null;
   return (
